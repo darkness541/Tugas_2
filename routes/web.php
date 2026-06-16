@@ -1,7 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FoodController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('foods.index');
 });
+
+Route::resource('foods', FoodController::class);
