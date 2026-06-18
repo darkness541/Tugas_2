@@ -57,10 +57,83 @@ class FoodController extends Controller
         return view('foods.edit', compact('food', 'restaurants'));
     }
 
+    public function update(Request $request, Food $food)
+    {
+        $request->validate([
+            'restaurant_id' => 'required|exists:restaurants,id',
+            'name'          => 'required|string|max:255',
+            'price'         => 'required|numeric|min:0',
+            'description'   => 'nullable|string',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $food->update([
+                'restaurant_id' => $request->restaurant_id,
+                'name'          => $request->name,
+                'price'         => $request->price,
+                'description'   => $request->description,
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('foods.index')
+                ->with('success', 'Menu NgabFood berhasil diperbarui!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Gagal memperbarui menu: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
     public function destroy(Food $food)
     {
         $food->delete();
         return redirect()->route('foods.index')
-            ->with('success', 'Menu berhasil dihapus');
+            ->with('success', 'Menu berhasil dihapus (Soft Delete)');
+    }
+
+    /**
+     * Commit 5: Halaman Trash
+     */
+    public function trash()
+    {
+        $trashedFoods = Food::onlyTrashed()->with('restaurant')->get();
+        return view('foods.trash', compact('trashedFoods'));
+    }
+
+    public function restore($id)
+    {
+        DB::beginTransaction();
+        try {
+            $food = Food::onlyTrashed()->findOrFail($id);
+            $food->restore();
+
+            DB::commit();
+            return redirect()->route('foods.trash')
+                ->with('success', 'Menu berhasil direstore!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Gagal restore menu: ' . $e->getMessage());
+        }
+    }
+
+    public function forceDelete($id)
+    {
+        DB::beginTransaction();
+        try {
+            $food = Food::onlyTrashed()->findOrFail($id);
+            $food->forceDelete();
+
+            DB::commit();
+            return redirect()->route('foods.trash')
+                ->with('success', 'Menu berhasil dihapus permanen!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Gagal hapus permanen: ' . $e->getMessage());
+        }
     }
 }
