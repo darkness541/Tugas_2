@@ -7,7 +7,7 @@ Route::get('/', function () {
     return redirect()->route('foods.index');
 });
 
-// Route khusus Trash (HARUS DITARUH SEBELUM resource)
+// Route Khusus Trash & Restore (HARUS SEBELUM resource)
 Route::get('/foods/trash', [FoodController::class, 'trash'])->name('foods.trash');
 Route::post('/foods/{id}/restore', [FoodController::class, 'restore'])->name('foods.restore');
 Route::delete('/foods/{id}/force', [FoodController::class, 'forceDelete'])->name('foods.forceDelete');

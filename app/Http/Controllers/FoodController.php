@@ -94,15 +94,16 @@ class FoodController extends Controller
             ->with('success', 'Menu berhasil dihapus (Soft Delete)');
     }
 
-    /**
-     * Commit 5: Halaman Trash
-     */
+    // Commit 5: Halaman Trash
     public function trash()
     {
         $trashedFoods = Food::onlyTrashed()->with('restaurant')->get();
         return view('foods.trash', compact('trashedFoods'));
     }
 
+    /**
+     * Commit 6: Fitur Restore
+     */
     public function restore($id)
     {
         DB::beginTransaction();
@@ -112,7 +113,7 @@ class FoodController extends Controller
 
             DB::commit();
             return redirect()->route('foods.trash')
-                ->with('success', 'Menu berhasil direstore!');
+                ->with('success', 'Menu berhasil direstore ke daftar utama!');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
@@ -120,6 +121,7 @@ class FoodController extends Controller
         }
     }
 
+    // Commit 7: Force Delete (sudah disertakan)
     public function forceDelete($id)
     {
         DB::beginTransaction();
