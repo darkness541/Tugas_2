@@ -101,9 +101,7 @@ class FoodController extends Controller
         return view('foods.trash', compact('trashedFoods'));
     }
 
-    /**
-     * Commit 6: Fitur Restore
-     */
+    // Commit 6: Restore Data
     public function restore($id)
     {
         DB::beginTransaction();
@@ -121,7 +119,9 @@ class FoodController extends Controller
         }
     }
 
-    // Commit 7: Force Delete (sudah disertakan)
+    /**
+     * Commit 7: Force Delete (Hapus Permanen)
+     */
     public function forceDelete($id)
     {
         DB::beginTransaction();
@@ -131,11 +131,11 @@ class FoodController extends Controller
 
             DB::commit();
             return redirect()->route('foods.trash')
-                ->with('success', 'Menu berhasil dihapus permanen!');
+                ->with('success', 'Menu berhasil dihapus permanen dari database!');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
-                ->with('error', 'Gagal hapus permanen: ' . $e->getMessage());
+                ->with('error', 'Gagal menghapus permanen: ' . $e->getMessage());
         }
     }
 }
